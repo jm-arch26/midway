@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIDWAY — 완전판</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --deep: #071020;
+    --ocean: #0d2b4e;
+    --steel: #1e3a5f;
+    --sky: #1a6fa8;
+    --aqua: #2ab4d8;
+    --gold: #f0c040;
+    --amber: #e8920a;
+    --cream: #f5f0e8;
+    --white: #ffffff;
+    --red: #c0392b;
+    --fog: rgba(255,255,255,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    color: var(--white);
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px;
+    background: rgba(7,16,32,0.92);
+    border-bottom: 1px solid rgba(42,180,216,0.2);
+    backdrop-filter: blur(12px);
+    gap: 12px;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 4px;
+    color: var(--aqua); flex-shrink: 0;
+  }
+  .nav-sections {
+    display: flex; gap: 4px; flex-wrap: nowrap; overflow-x: auto;
+    scrollbar-width: none; flex: 1;
+  }
+  .nav-sections::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 5px 10px; border-radius: 4px;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.45);
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .nav-btn:hover { color: var(--aqua); background: rgba(42,180,216,0.08); }
+  .nav-btn.active { color: var(--gold); background: rgba(240,192,64,0.1); }
+  .nav-video { color: rgba(240,192,64,0.5) !important; font-size: 9px !important; }
+  .nav-video:hover { color: var(--gold) !important; background: rgba(240,192,64,0.08) !important; }
+  .nav-video.active { color: var(--gold) !important; background: rgba(240,192,64,0.15) !important; }
+
+  /* ── VIDEO SLIDE ── */
+  .video-slide-wrap {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(13,43,78,0.6) 0%, transparent 80%);
+  }
+  .video-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px; letter-spacing: 4px; color: var(--gold);
+    opacity: 0.8; text-transform: uppercase;
+  }
+  .video-frame-wrap {
+    width: 85%; max-width: 960px;
+    aspect-ratio: 16/9;
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid rgba(42,180,216,0.25);
+    box-shadow: 0 0 40px rgba(42,180,216,0.08);
+    background: #000;
+  }
+  .video-frame-wrap iframe {
+    width: 100%; height: 100%;
+    border: none;
+  }
+  .video-nav-hint {
+    font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.25);
+  }
+
+  /* 파트 구분선 */
+  .nav-sep {
+    width: 1px; height: 18px; background: rgba(255,255,255,0.12);
+    flex-shrink: 0; align-self: center;
+  }
+
+  .nav-arrows {
+    display: flex; gap: 6px; align-items: center; flex-shrink: 0;
+  }
+  .slide-counter {
+    font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,0.3);
+    padding: 4px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 3px;
+    font-family: 'Oswald', sans-serif; white-space: nowrap;
+  }
+  .arrow-btn {
+    background: rgba(42,180,216,0.1);
+    border: 1px solid rgba(42,180,216,0.25);
+    color: var(--aqua); cursor: pointer;
+    width: 30px; height: 30px; border-radius: 4px;
+    font-size: 13px; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .arrow-btn:hover { background: rgba(42,180,216,0.25); }
+
+  /* ── SLIDES ── */
+  .slides-wrap { position: fixed; top: 50px; left: 0; right: 0; bottom: 0; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 28px 40px;
+    opacity: 0; pointer-events: none;
+    transform: translateX(40px);
+    transition: all 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .slide.active {
+    opacity: 1; pointer-events: all;
+    transform: translateX(0);
+  }
+  .slide.exit {
+    opacity: 0; transform: translateX(-40px);
+    transition: all 0.3s ease;
+  }
+
+  /* ── SLIDE 1: INTRO ── */
+  #s1 {
+    flex-direction: column;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(13,43,78,0.9) 0%, transparent 70%),
+      linear-gradient(160deg, #071020 0%, #0a1628 60%, #0d1f3a 100%);
+    overflow: hidden;
+  }
+  #s1::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(42,180,216,0.04) 60px),
+      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(42,180,216,0.04) 60px);
+  }
+
+  .s1-year {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px; letter-spacing: 8px; font-weight: 300;
+    color: var(--aqua); margin-bottom: 12px; opacity: 0.8;
+  }
+  .s1-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 12vw, 130px);
+    letter-spacing: 16px; line-height: 0.9;
+    background: linear-gradient(135deg, #ffffff 30%, #2ab4d8 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    position: relative; z-index: 1;
+  }
+  .s1-subtitle {
+    font-size: 13px; letter-spacing: 3px; color: rgba(255,255,255,0.45);
+    margin-top: 18px; font-weight: 300;
+  }
+  .s1-meta {
+    margin-top: 48px; display: flex; gap: 48px; position: relative; z-index: 1;
+  }
+  .s1-meta-item { text-align: center; }
+  .s1-meta-label {
+    font-size: 10px; letter-spacing: 3px; color: var(--aqua);
+    opacity: 0.7; font-weight: 500; text-transform: uppercase;
+  }
+  .s1-meta-val {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px; color: var(--gold); font-weight: 400;
+    margin-top: 4px;
+  }
+  .s1-wave {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 120px; opacity: 0.15;
+  }
+  .members-bar {
+    margin-top: 36px; display: flex; gap: 24px;
+    flex-wrap: wrap; justify-content: center; position: relative; z-index: 1;
+  }
+  .member-tag {
+    padding: 6px 16px; border: 1px solid rgba(42,180,216,0.3);
+    border-radius: 20px; font-size: 12px; color: rgba(255,255,255,0.6);
+    background: rgba(42,180,216,0.06);
+  }
+  .member-tag strong { color: var(--aqua); }
+
+  /* ── SLIDE 2: MOVIE INTRO ── */
+  #s2 { gap: 48px; }
+  .s2-left { flex: 1.1; display: flex; flex-direction: column; gap: 20px; }
+  .s2-right { flex: 0.95; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; min-height: 0; }
+  .rel-diagram { flex: 1; overflow-y: auto; }
+
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px; border-radius: 20px;
+    background: rgba(42,180,216,0.12); border: 1px solid rgba(42,180,216,0.3);
+    font-size: 11px; letter-spacing: 2px; color: var(--aqua); font-weight: 500;
+    width: fit-content; text-transform: uppercase;
+  }
+  .section-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+    color: var(--gold); letter-spacing: 1px;
+  }
+  .section-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(22px, 2.8vw, 38px); font-weight: 600;
+    line-height: 1.15; letter-spacing: 1px;
+    color: var(--white);
+  }
+  .section-title span { color: var(--aqua); }
+
+  .movie-poster-card {
+    background: linear-gradient(145deg, #0d2b4e, #1a4a7a);
+    border: 1px solid rgba(42,180,216,0.2);
+    border-radius: 12px; padding: 28px 24px;
+    position: relative; overflow: hidden;
+  }
+  .movie-poster-card::after {
+    content: '';
+    position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(42,180,216,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+  .poster-year { font-size: 11px; letter-spacing: 3px; color: var(--aqua); opacity: 0.7; }
+  .poster-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px; letter-spacing: 6px; color: var(--white);
+    margin: 4px 0 8px;
+  }
+  .poster-info { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.8; }
+  .poster-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 3px;
+    background: var(--gold); color: var(--navy);
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    margin-top: 12px;
+  }
+
+  .plot-card {
+    background: var(--fog); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 14px 18px;
+    font-size: 12px; line-height: 1.8; color: rgba(255,255,255,0.72);
+  }
+  .plot-card strong { color: var(--gold); font-weight: 500; }
+
+  .rel-diagram {
+    background: rgba(10,22,40,0.6); border: 1px solid rgba(42,180,216,0.15);
+    border-radius: 10px; padding: 20px;
+    flex: 1;
+  }
+  .rel-title {
+    font-size: 11px; letter-spacing: 3px; color: var(--aqua); opacity: 0.7;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+
+  .stat-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .stat-pill {
+    flex: 1; min-width: 100px;
+    background: rgba(13,43,78,0.6); border: 1px solid rgba(42,180,216,0.15);
+    border-radius: 8px; padding: 14px 16px; text-align: center;
+  }
+  .stat-pill .val {
+    font-family: 'Bebas Neue', sans-serif; font-size: 32px;
+    color: var(--gold); letter-spacing: 2px; line-height: 1;
+  }
+  .stat-pill .lbl { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 4px; letter-spacing: 1px; }
+
+  /* ── SLIDE 3: 진주만 ── */
+  #s3 { gap: 32px; align-items: flex-start; }
+  .s3-left { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .s3-right { flex: 1.1; display: flex; flex-direction: column; gap: 11px; }
+  .timeline-list { display: flex; flex-direction: column; }
+  .tl-item { display: flex; gap: 13px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--aqua); margin-top: 5px; flex-shrink: 0; box-shadow: 0 0 7px rgba(42,180,216,0.6); }
+  .tl-content .tl-year { font-family: 'Oswald', sans-serif; font-size: 11px; color: var(--gold); letter-spacing: 1.5px; }
+  .tl-content .tl-text { font-size: 11.5px; color: rgba(255,255,255,0.7); line-height: 1.55; margin-top: 2px; }
+  .tl-content .tl-text strong { color: var(--white); }
+
+  .map-box {
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid rgba(42,180,216,0.2);
+    background: rgba(5,14,28,0.9);
+    position: relative;
+  }
+  .map-title {
+    position: absolute; top: 9px; left: 11px;
+    font-size: 9.5px; letter-spacing: 2px; color: var(--aqua);
+    opacity: 0.85; text-transform: uppercase; z-index: 2;
+    background: rgba(5,14,28,0.75); padding: 3px 8px; border-radius: 3px;
+  }
+  .map-legend {
+    position: absolute; bottom: 9px; right: 9px;
+    background: rgba(5,14,28,0.88); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px; padding: 7px 9px; z-index: 2;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .leg-row { display: flex; align-items: center; gap: 6px; font-size: 8.5px; color: rgba(255,255,255,0.5); }
+  .leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .leg-line { width: 16px; height: 2px; flex-shrink: 0; }
+
+  /* ── SLIDE 4: 둘리틀 ── */
+  #s4 { gap: 32px; align-items: flex-start; }
+  .s4-left { flex: 1.2; display: flex; flex-direction: column; gap: 14px; }
+  .s4-right { flex: 0.8; display: flex; flex-direction: column; gap: 10px; }
+  .effect-list { display: flex; flex-direction: column; gap: 8px; }
+  .eff-item { display: flex; gap: 11px; align-items: flex-start; padding: 9px 12px; border-radius: 8px; background: rgba(13,43,78,0.4); border-left: 3px solid; }
+  .eff-item.mil { border-color: var(--aqua); }
+  .eff-item.psy { border-color: var(--gold); }
+  .eff-item.soc { border-color: var(--amber); }
+  .eff-item .ei-tag { font-size: 9.5px; letter-spacing: 1px; font-weight: 700; padding: 2px 7px; border-radius: 3px; flex-shrink: 0; margin-top: 2px; }
+  .eff-item.mil .ei-tag { background: rgba(42,180,216,0.2); color: var(--aqua); }
+  .eff-item.psy .ei-tag { background: rgba(240,192,64,0.15); color: var(--gold); }
+  .eff-item.soc .ei-tag { background: rgba(232,146,10,0.15); color: var(--amber); }
+  .eff-item .ei-text { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.55; }
+  .eff-item .ei-text strong { color: var(--white); }
+
+  /* ── SLIDE 8: 해전 양상 ── */
+  #s8 { flex-direction: column; gap: 12px; }
+  .battle-body { display: flex; gap: 22px; width: 100%; flex: 1; min-height: 0; }
+
+  /* ── SLIDE 10: 전쟁사적 의미 ── */
+  #s10 { align-items: flex-start; padding: 22px 40px; }
+
+  /* ── SLIDE 11: 역사적 의미 ── */
+  #s11 { gap: 40px; align-items: flex-start; }
+
+  /* ── SLIDE 12: 토론 ── */
+  #s12 { flex-direction: column; gap: 22px; }
+  .battle-left { flex: 1.2; display: flex; flex-direction: column; gap: 10px; }
+  .battle-right { flex: 0.8; display: flex; flex-direction: column; gap: 9px; }
+  .force-pair { display: flex; gap: 9px; }
+  .force-card { flex: 1; border-radius: 8px; padding: 11px 13px; }
+  .force-card.us { background: linear-gradient(135deg, rgba(26,111,168,0.35), rgba(13,43,78,0.6)); border: 1px solid rgba(42,180,216,0.3); }
+  .force-card.jp { background: linear-gradient(135deg, rgba(192,57,43,0.3), rgba(10,22,40,0.6)); border: 1px solid rgba(192,57,43,0.3); }
+  .fc-flag { font-size: 20px; margin-bottom: 5px; }
+  .fc-name { font-family: 'Oswald', sans-serif; font-size: 14px; letter-spacing: 2px; margin-bottom: 8px; }
+  .force-card.us .fc-name { color: var(--aqua); }
+  .force-card.jp .fc-name { color: #e74c3c; }
+  .fc-stat { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .fc-stat .fs-label { font-size: 10px; color: rgba(255,255,255,0.5); }
+  .fc-stat .fs-val { font-size: 10.5px; color: var(--white); font-weight: 500; }
+  .result-cards { display: flex; gap: 9px; }
+  .rc { flex: 1; border-radius: 7px; padding: 10px 12px; background: rgba(10,22,40,0.7); border: 1px solid rgba(255,255,255,0.07); }
+  .rc .rc-label { font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 5px; }
+  .rc .rc-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
+  .rc .rc-sub { font-size: 9.5px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .rc.loss-us .rc-val { color: var(--aqua); }
+  .rc.loss-jp .rc-val { color: #e74c3c; }
+  .rc.outcome .rc-val { color: var(--gold); font-size: 14px; letter-spacing: 0.5px; }
+
+  .s6-left { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+  .s6-right { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+
+  .compare-table { width: 100%; border-collapse: collapse; }
+  .compare-table th {
+    font-size: 11px; letter-spacing: 2px; padding: 10px 14px;
+    background: rgba(42,180,216,0.08); color: var(--aqua);
+    text-align: left; border-bottom: 1px solid rgba(42,180,216,0.2);
+  }
+  .compare-table td {
+    font-size: 12px; color: rgba(255,255,255,0.65);
+    padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); line-height: 1.5;
+  }
+  .compare-table tr:hover td { background: rgba(42,180,216,0.04); }
+  .tag-common {
+    display: inline-block; padding: 1px 8px; border-radius: 3px;
+    background: rgba(42,180,216,0.15); color: var(--aqua);
+    font-size: 10px; font-weight: 600; margin-right: 6px;
+  }
+  .tag-diff {
+    display: inline-block; padding: 1px 8px; border-radius: 3px;
+    background: rgba(240,192,64,0.12); color: var(--gold);
+    font-size: 10px; font-weight: 600; margin-right: 6px;
+  }
+
+  .meaning-cards { display: flex; flex-direction: column; gap: 10px; }
+  .mc {
+    padding: 14px 16px; border-radius: 8px;
+    background: rgba(13,43,78,0.5); border-left: 3px solid var(--aqua);
+    display: flex; gap: 12px;
+  }
+  .mc .mc-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--aqua); opacity: 0.4; line-height: 1; flex-shrink: 0; width: 22px; }
+  .mc .mc-text { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+  .mc .mc-text strong { color: var(--white); }
+
+  .debate-tabs { display: flex; gap: 8px; }
+  .dtab {
+    padding: 8px 20px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 500; letter-spacing: 1px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent; color: rgba(255,255,255,0.4);
+    transition: all 0.2s; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .dtab.active { background: rgba(42,180,216,0.15); border-color: var(--aqua); color: var(--aqua); }
+
+  .debate-panel { display: none; width: 100%; }
+  .debate-panel.active { display: flex; gap: 32px; }
+
+  .front-text { flex: 0.8; display: flex; flex-direction: column; gap: 12px; }
+  .ft-card {
+    padding: 14px 16px; border-radius: 8px;
+    background: rgba(13,43,78,0.5); border: 1px solid rgba(255,255,255,0.06);
+  }
+  .ft-card .ftc-title { font-size: 11px; letter-spacing: 2px; font-weight: 600; margin-bottom: 6px; }
+  .ft-card.ger .ftc-title { color: #e74c3c; }
+  .ft-card.jpn .ftc-title { color: var(--gold); }
+  .ft-card .ftc-body { font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+  .cipher-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex: 1; }
+  .cipher-card { border-radius: 10px; padding: 20px; background: rgba(13,43,78,0.5); }
+  .cipher-card.enigma { border: 1px solid rgba(232,146,10,0.3); }
+  .cipher-card.midway { border: 1px solid rgba(42,180,216,0.3); }
+  .cc-icon { font-size: 32px; margin-bottom: 10px; }
+  .cc-name { font-family: 'Oswald', sans-serif; font-size: 20px; letter-spacing: 2px; margin-bottom: 12px; }
+  .cipher-card.enigma .cc-name { color: var(--amber); }
+  .cipher-card.midway .cc-name { color: var(--aqua); }
+  .cc-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+  .cc-row .cr-k { color: rgba(255,255,255,0.45); }
+  .cc-row .cr-v { color: var(--white); font-weight: 500; }
+  .cc-compare { margin-top: 14px; font-size: 11.5px; color: rgba(255,255,255,0.55); line-height: 1.65; }
+
+  .debate-aside { flex: 0.5; display: flex; flex-direction: column; gap: 12px; }
+  .q-card {
+    background: rgba(240,192,64,0.07); border: 1px solid rgba(240,192,64,0.2);
+    border-radius: 8px; padding: 16px;
+  }
+  .q-card .qc-label { font-size: 10px; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; }
+  .q-card .qc-q { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6; font-weight: 300; }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 3px;
+    background: rgba(255,255,255,0.06); z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--aqua), var(--gold));
+    transition: width 0.4s ease;
+  }
+
+  @keyframes pulse-red { 0%,100%{opacity:0.9} 50%{opacity:0.4} }
+  @keyframes pulse-blue { 0%,100%{opacity:0.9} 50%{opacity:0.4} }
+  .pulse-r { animation: pulse-red 2s ease-in-out infinite; }
+  .pulse-b { animation: pulse-blue 2s ease-in-out infinite 0.5s; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">MIDWAY</div>
+  <div class="nav-sections">
+    <button class="nav-btn active" onclick="goTo(0)">INTRO</button>
+    <button class="nav-btn" onclick="goTo(1)">영화 소개</button>
+    <button class="nav-btn nav-video" onclick="goTo(2)">▶ 영상</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" onclick="goTo(3)">진주만</button>
+    <button class="nav-btn nav-video" onclick="goTo(4)">▶ 영상</button>
+    <button class="nav-btn" onclick="goTo(5)">둘리틀 공습</button>
+    <button class="nav-btn nav-video" onclick="goTo(6)">▶ 영상</button>
+    <button class="nav-btn" onclick="goTo(7)">해전 양상</button>
+    <button class="nav-btn nav-video" onclick="goTo(8)">▶ 영상</button>
+    <button class="nav-btn" onclick="goTo(9)">전쟁사적 의미</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" onclick="goTo(10)">역사적 의미</button>
+    <button class="nav-btn" onclick="goTo(11)">토론</button>
+    <button class="nav-btn nav-video" onclick="goTo(12)">▶ 암호해독 영상</button>
+  </div>
+  <div class="nav-arrows">
+    <span class="slide-counter" id="slideCounter">1 / 13</span>
+    <button class="arrow-btn" onclick="prevSlide()">←</button>
+    <button class="arrow-btn" onclick="nextSlide()">→</button>
+  </div>
+</nav>
+
+<div class="slides-wrap">
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 1: INTRO (Part1 s1)         -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide active" id="s1">
+    <img src="http://www.impawards.com/2019/posters/midway.jpg"
+         style="position:absolute;right:0;top:0;height:100%;width:auto;object-fit:cover;opacity:0.22;mask-image:linear-gradient(to left,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0) 100%);-webkit-mask-image:linear-gradient(to left,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0) 100%);z-index:0;pointer-events:none"
+         onerror="this.style.display='none'">
+
+    <div class="s1-year" style="position:relative;z-index:1">SECTION 0 · FILM PRESENTATION</div>
+    <div class="s1-title" style="position:relative;z-index:1">MIDWAY</div>
+    <div class="s1-subtitle" style="position:relative;z-index:1">미드웨이 · 태평양 전선의 전환점</div>
+    <div class="s1-meta" style="position:relative;z-index:1">
+      <div class="s1-meta-item">
+        <div class="s1-meta-label">감독</div>
+        <div class="s1-meta-val">롤랜드 에머리히</div>
+      </div>
+      <div class="s1-meta-item">
+        <div class="s1-meta-label">개봉</div>
+        <div class="s1-meta-val">2019</div>
+      </div>
+      <div class="s1-meta-item">
+        <div class="s1-meta-label">장르</div>
+        <div class="s1-meta-val">전쟁 / 역사</div>
+      </div>
+    </div>
+    <div class="members-bar" style="position:relative;z-index:1">
+      <div class="member-tag">섹션 1 · <strong>영화소개</strong></div>
+      <div class="member-tag">섹션 2 · <strong>김가연</strong> 진주만</div>
+      <div class="member-tag">섹션 3 · <strong>신재현</strong> 교토 폭격</div>
+      <div class="member-tag">섹션 4 · <strong>김민희</strong> 해전 양상</div>
+      <div class="member-tag">섹션 5 · <strong>이루다</strong> 역사적 의미</div>
+    </div>
+    <svg class="s1-wave" viewBox="0 0 1440 120" preserveAspectRatio="none">
+      <path d="M0,60 C360,100 720,20 1080,60 C1260,80 1380,50 1440,60 L1440,120 L0,120 Z" fill="rgba(42,180,216,1)"/>
+      <path d="M0,80 C240,50 480,100 720,80 C960,60 1200,90 1440,80 L1440,120 L0,120 Z" fill="rgba(26,111,168,0.6)"/>
+    </svg>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 2: 영화 소개 (Part1 s2)     -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s2" style="flex-direction:column;align-items:stretch;padding:20px 40px;gap:12px">
+
+    <div style="flex-shrink:0;display:flex;gap:20px;align-items:stretch">
+      <div style="display:flex;flex-direction:column;justify-content:center;gap:6px;flex-shrink:0">
+        <div class="section-badge"><span class="section-num">01</span> 영화 소개</div>
+        <div class="section-title" style="font-size:clamp(20px,2.2vw,32px)">영화 <span>미드웨이</span> 소개</div>
+      </div>
+
+      <div style="flex:1;background:linear-gradient(145deg,#0d2b4e,#1a4a7a);border:1px solid rgba(42,180,216,0.2);border-radius:10px;padding:12px 18px;display:flex;gap:20px;align-items:center">
+        <div>
+          <div style="font-size:12px;letter-spacing:3px;color:var(--aqua);opacity:0.7">2019 · USA · 138MIN</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:5px;color:var(--white);margin:2px 0 6px">MIDWAY</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7">
+            감독: 롤랜드 에머리히 (Roland Emmerich)<br>
+            출연: 에드 스크레인, 패트릭 윌슨, 루크 에반스 외<br>
+            배경: 1941–1942 태평양 전선
+          </div>
+          <div class="poster-tag" style="margin-top:6px">BASED ON TRUE EVENTS</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-left:auto;flex-shrink:0">
+          <div class="stat-pill"><div class="val" style="font-size:22px">$100M</div><div class="lbl">제작비</div></div>
+          <div class="stat-pill"><div class="val" style="font-size:26px">138</div><div class="lbl">상영시간(분)</div></div>
+          <div class="stat-pill"><div class="val" style="font-size:22px">$127M</div><div class="lbl">전세계 흥행</div></div>
+        </div>
+      </div>
+
+      <div class="plot-card" style="flex:0.6;font-size:13px;line-height:1.75">
+        <strong>줄거리</strong><br>
+        1941년 <strong>진주만 공습</strong>으로 시작된 미·일 전쟁. 정보장교 <strong>에드윈 레이턴</strong>과 조종사 <strong>딕 베스트</strong>는 일본의 다음 목표를 추적한다. 암호 해독팀이 알아낸 것은 바로 <strong>미드웨이 섬</strong> — 전력 열세 속에서도 미 해군은 운명을 건 전투에 뛰어든다.
+      </div>
+    </div>
+
+    <div class="rel-diagram" style="flex:1;min-height:0;padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+        <div class="rel-title" style="margin-bottom:0">🎬 주요 등장인물</div>
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(42,180,216,0.6);text-transform:uppercase">🇺🇸 미국 · 🇯🇵 일본</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1;min-height:0">
+
+        <div style="background:rgba(240,192,64,0.07);border:1px solid rgba(240,192,64,0.28);border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+          <img src="https://www.flickeringmyth.com/wp-content/uploads/2019/09/midway-Chester_Nimitz_Character_Poster_rgb-600x889.jpg"
+               style="width:100%;flex:1;object-fit:cover;object-position:center top;display:block;min-height:0"
+               onerror="this.style.display='none'">
+          <div style="padding:8px 9px 9px;flex-shrink:0;background:rgba(10,22,40,0.85)">
+            <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:3px">체스터 니미츠</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:3px">우디 해럴슨</div>
+            <div style="font-size:10px;color:rgba(42,180,216,0.9);letter-spacing:0.3px;margin-bottom:5px">태평양함대 사령관</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.82);line-height:1.6"><span style="color:var(--gold)">미드웨이 매복작전</span> 결정, 열세 전력으로 일본 기동함대 격파</div>
+          </div>
+        </div>
+
+        <div style="background:rgba(42,180,216,0.07);border:1px solid rgba(42,180,216,0.22);border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+          <img src="https://www.flickeringmyth.com/wp-content/uploads/2019/09/midway-Dick_Best_Character_Poster_rgb-600x889.jpg"
+               style="width:100%;flex:1;object-fit:cover;object-position:center top;display:block;min-height:0"
+               onerror="this.style.display='none'">
+          <div style="padding:8px 9px 9px;flex-shrink:0;background:rgba(10,22,40,0.85)">
+            <div style="font-size:13px;color:var(--aqua);font-weight:700;margin-bottom:3px">딕 베스트</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:3px">에드 스크레인</div>
+            <div style="font-size:10px;color:rgba(42,180,216,0.9);letter-spacing:0.3px;margin-bottom:5px">급강하 폭격사</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.82);line-height:1.6"><span style="color:var(--aqua)">아카기·소류</span> 격침 주도, 미드웨이 핵심</div>
+          </div>
+        </div>
+
+        <div style="background:rgba(42,180,216,0.07);border:1px solid rgba(42,180,216,0.18);border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+          <img src="https://www.flickeringmyth.com/wp-content/uploads/2019/09/midway-Edwin_Layton_Character_Poster_rgb-600x889.jpg"
+               style="width:100%;flex:1;object-fit:cover;object-position:center top;display:block;min-height:0"
+               onerror="this.style.display='none'">
+          <div style="padding:8px 9px 9px;flex-shrink:0;background:rgba(10,22,40,0.85)">
+            <div style="font-size:13px;color:var(--aqua);font-weight:700;margin-bottom:3px">에드윈 레이턴</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:3px">패트릭 윌슨</div>
+            <div style="font-size:10px;color:rgba(42,180,216,0.9);letter-spacing:0.3px;margin-bottom:5px">정보장교</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.82);line-height:1.6"><span style="color:var(--aqua)">JN-25 암호 해독</span>으로 일본 목표 사전 파악</div>
+          </div>
+        </div>
+
+        <div style="background:rgba(42,180,216,0.07);border:1px solid rgba(42,180,216,0.18);border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+          <img src="https://www.flickeringmyth.com/wp-content/uploads/2019/09/midway-Jimmy-Doolittle-Character-Poster_rgb-600x911.jpg"
+               style="width:100%;flex:1;object-fit:cover;object-position:center top;display:block;min-height:0"
+               onerror="this.style.display='none'">
+          <div style="padding:8px 9px 9px;flex-shrink:0;background:rgba(10,22,40,0.85)">
+            <div style="font-size:13px;color:var(--aqua);font-weight:700;margin-bottom:3px">지미 둘리틀</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:3px">애런 에크하트</div>
+            <div style="font-size:10px;color:rgba(42,180,216,0.9);letter-spacing:0.3px;margin-bottom:5px">폭격대 지휘관</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.82);line-height:1.6"><span style="color:var(--aqua)">도쿄 기습(1942.4)</span> 지휘, 일본 심리적 타격</div>
+          </div>
+        </div>
+
+        <div style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.28);border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+          <img src="https://www.flickeringmyth.com/wp-content/uploads/2019/09/midway-Admiral_Yamamoto_Character_Poster_rgb-600x889.jpg"
+               style="width:100%;flex:1;object-fit:cover;object-position:center top;display:block;min-height:0"
+               onerror="this.style.display='none'">
+          <div style="padding:8px 9px 9px;flex-shrink:0;background:rgba(10,22,40,0.85)">
+            <div style="font-size:13px;color:#e74c3c;font-weight:700;margin-bottom:3px">야마모토 이소로쿠</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:3px">도요카와 에쓰시 🇯🇵</div>
+            <div style="font-size:10px;color:rgba(192,57,43,0.9);letter-spacing:0.3px;margin-bottom:5px">연합함대 사령관</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.82);line-height:1.6"><span style="color:#e74c3c">미 함대 유인·섬멸</span> 계획, 암호 노출로 역습 허용</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 3: 영상 1 — 영화 소개       -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="video-slide-wrap">
+      <div class="video-label">▶ 영화 소개 영상</div>
+      <div class="video-frame-wrap">
+        <iframe src="https://drive.google.com/file/d/1Z4hgEmm_OmW-thJXT2_j4hf8Mx_sZ319/preview"
+                allow="autoplay" allowfullscreen></iframe>
+      </div>
+      <div class="video-nav-hint">← → 키 또는 화살표 버튼으로 이동</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 4: 진주만 (Part2 s1)        -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s4">
+  <div class="s3-left">
+    <div class="section-badge"><span class="section-num">02</span> 발표자: 김가연</div>
+    <div class="section-title">진주만 공습 —<br><span>전후 맥락과 미국의 반응</span></div>
+    <div class="timeline-list">
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#e74c3c;box-shadow:0 0 7px rgba(231,76,60,0.6)"></div>
+        <div class="tl-content">
+          <div class="tl-year">1931–1940 · 배경</div>
+          <div class="tl-text">일본 제국의 <strong>대동아공영권</strong> 건설 — 중일전쟁, 동남아 세력 확장</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#e8920a;box-shadow:0 0 7px rgba(232,146,10,0.6)"></div>
+        <div class="tl-content">
+          <div class="tl-year">1941 여름 · 경제 제재</div>
+          <div class="tl-text">루스벨트, <strong>석유·고철 수출 금지</strong>. 일본 수입 석유 80%가 미국산 — 치명적 압박</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-year">1941.11 · 협상 결렬</div>
+          <div class="tl-text"><strong>헐 노트(Hull Note)</strong> 협상 무산. 일본 군부, 선제 타격 결정</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#e74c3c;box-shadow:0 0 7px rgba(231,76,60,0.8)"></div>
+        <div class="tl-content">
+          <div class="tl-year">1941.12.7 · D-DAY</div>
+          <div class="tl-text">항공기 <strong>353기</strong>, 진주만 기습. 2,400여 명 사망, 전함 8척 침몰·손상</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#2ab4d8;box-shadow:0 0 7px rgba(42,180,216,0.8)"></div>
+        <div class="tl-content">
+          <div class="tl-year">1941.12.8 · 미국의 반응</div>
+          <div class="tl-text">"치욕으로 기억될 날" — 루스벨트 의회 연설, 선전포고 가결</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s3-right">
+    <div class="map-box" style="flex:1">
+      <div class="map-title">🗺 진주만 공습 전술도 — 1941.12.7 오아후 항구</div>
+      <svg viewBox="0 0 480 295" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+        <defs>
+          <radialGradient id="sea-ph" cx="50%" cy="60%" r="60%">
+            <stop offset="0%" stop-color="#0a2040"/>
+            <stop offset="100%" stop-color="#040d1a"/>
+          </radialGradient>
+          <marker id="arr-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#e74c3c"/>
+          </marker>
+          <marker id="arr-ora" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#e8920a"/>
+          </marker>
+          <filter id="glow-r"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="480" height="295" fill="url(#sea-ph)"/>
+        <line x1="0" y1="60" x2="480" y2="60" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+        <line x1="0" y1="120" x2="480" y2="120" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+        <line x1="0" y1="180" x2="480" y2="180" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+        <line x1="0" y1="240" x2="480" y2="240" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+        <line x1="120" y1="0" x2="120" y2="295" stroke="rgba(42,180,216,0.03)" stroke-width="1"/>
+        <line x1="240" y1="0" x2="240" y2="295" stroke="rgba(42,180,216,0.03)" stroke-width="1"/>
+        <line x1="360" y1="0" x2="360" y2="295" stroke="rgba(42,180,216,0.03)" stroke-width="1"/>
+        <path d="M55,10 Q140,2 240,8 Q330,14 420,22 Q455,32 460,55 Q455,78 420,90 Q380,100 340,96 Q300,92 260,96 Q220,100 180,96 Q140,92 100,96 Q65,100 42,88 Q20,75 22,52 Q28,28 55,10Z"
+              fill="rgba(40,90,55,0.5)" stroke="rgba(80,160,100,0.4)" stroke-width="1.2"/>
+        <text x="240" y="58" text-anchor="middle" fill="rgba(150,220,150,0.7)" font-size="12" font-family="Oswald" letter-spacing="4">OAHU</text>
+        <text x="240" y="73" text-anchor="middle" fill="rgba(150,220,150,0.45)" font-size="8.5" font-family="Noto Sans KR">오아후 섬</text>
+        <ellipse cx="222" cy="178" rx="52" ry="26" fill="rgba(40,90,55,0.6)" stroke="rgba(80,160,100,0.5)" stroke-width="1.3"/>
+        <text x="222" y="175" text-anchor="middle" fill="rgba(150,220,150,0.85)" font-size="8.5" font-family="Oswald">FORD IS.</text>
+        <text x="222" y="188" text-anchor="middle" fill="rgba(150,220,150,0.5)" font-size="7.5" font-family="Noto Sans KR">포드 섬</text>
+        <rect x="278" y="160" width="34" height="9" rx="2" fill="rgba(192,57,43,0.75)" stroke="#e74c3c" stroke-width="0.9"/>
+        <text x="295" y="154" text-anchor="middle" fill="rgba(231,76,60,0.85)" font-size="6.5" font-family="Oswald">ARIZONA</text>
+        <rect x="278" y="174" width="32" height="8" rx="2" fill="rgba(192,57,43,0.65)" stroke="#e74c3c" stroke-width="0.8"/>
+        <text x="294" y="192" text-anchor="middle" fill="rgba(231,76,60,0.7)" font-size="6.5" font-family="Oswald">OKLAHOMA</text>
+        <rect x="279" y="187" width="30" height="8" rx="2" fill="rgba(192,57,43,0.55)" stroke="#e74c3c" stroke-width="0.7"/>
+        <rect x="279" y="199" width="30" height="8" rx="2" fill="rgba(192,57,43,0.5)" stroke="#e74c3c" stroke-width="0.7"/>
+        <rect x="279" y="211" width="30" height="8" rx="2" fill="rgba(192,57,43,0.42)" stroke="rgba(231,76,60,0.5)" stroke-width="0.6"/>
+        <text x="356" y="183" text-anchor="start" fill="rgba(231,76,60,0.85)" font-size="9" font-family="Oswald" letter-spacing="1">BATTLESHIP ROW</text>
+        <text x="356" y="195" text-anchor="start" fill="rgba(255,255,255,0.38)" font-size="7.5" font-family="Noto Sans KR">전함열 — 5척 집중 피격</text>
+        <line x1="352" y1="186" x2="315" y2="186" stroke="rgba(231,76,60,0.35)" stroke-width="0.8" stroke-dasharray="3,2"/>
+        <rect x="148" y="165" width="22" height="8" rx="2" fill="rgba(42,100,180,0.45)" stroke="rgba(42,180,216,0.4)" stroke-width="0.7"/>
+        <rect x="148" y="177" width="22" height="8" rx="2" fill="rgba(42,100,180,0.38)" stroke="rgba(42,180,216,0.35)" stroke-width="0.6"/>
+        <rect x="305" y="245" width="82" height="38" rx="4" fill="rgba(40,75,50,0.4)" stroke="rgba(80,140,100,0.35)" stroke-width="1" stroke-dasharray="4,2"/>
+        <text x="346" y="260" text-anchor="middle" fill="rgba(150,220,150,0.65)" font-size="8" font-family="Oswald">HICKAM FIELD</text>
+        <text x="346" y="273" text-anchor="middle" fill="rgba(150,220,150,0.4)" font-size="7" font-family="Noto Sans KR">히캄 비행장</text>
+        <line x1="313" y1="264" x2="382" y2="264" stroke="rgba(80,140,100,0.4)" stroke-width="2"/>
+        <line x1="332" y1="248" x2="332" y2="280" stroke="rgba(80,140,100,0.3)" stroke-width="1.5"/>
+        <rect x="28" y="48" width="66" height="34" rx="4" fill="rgba(40,75,50,0.4)" stroke="rgba(80,140,100,0.35)" stroke-width="1" stroke-dasharray="4,2"/>
+        <text x="61" y="63" text-anchor="middle" fill="rgba(150,220,150,0.65)" font-size="7.5" font-family="Oswald">WHEELER</text>
+        <text x="61" y="74" text-anchor="middle" fill="rgba(150,220,150,0.4)" font-size="7" font-family="Noto Sans KR">훨러 비행장</text>
+        <rect x="400" y="30" width="68" height="28" rx="4" fill="rgba(40,75,50,0.35)" stroke="rgba(80,140,100,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="434" y="43" text-anchor="middle" fill="rgba(150,220,150,0.55)" font-size="7.5" font-family="Oswald">KANEOHE</text>
+        <text x="434" y="52" text-anchor="middle" fill="rgba(150,220,150,0.38)" font-size="7" font-family="Noto Sans KR">카네오헤 기지</text>
+        <line x1="95" y1="0" x2="210" y2="138" stroke="#e74c3c" stroke-width="2" stroke-dasharray="7,3" marker-end="url(#arr-red)" opacity="0.85"/>
+        <line x1="175" y1="0" x2="238" y2="138" stroke="#e74c3c" stroke-width="1.8" stroke-dasharray="7,3" marker-end="url(#arr-red)" opacity="0.72"/>
+        <line x1="255" y1="0" x2="285" y2="145" stroke="#e74c3c" stroke-width="1.8" stroke-dasharray="7,3" marker-end="url(#arr-red)" opacity="0.7"/>
+        <line x1="0" y1="172" x2="148" y2="178" stroke="#e74c3c" stroke-width="2.2" marker-end="url(#arr-red)" opacity="0.9"/>
+        <line x1="0" y1="188" x2="148" y2="185" stroke="#e74c3c" stroke-width="1.8" marker-end="url(#arr-red)" opacity="0.75"/>
+        <text x="65" y="168" text-anchor="middle" fill="rgba(231,76,60,0.65)" font-size="7.5" font-family="Noto Sans KR" transform="rotate(-3,65,168)">어뢰기 저공침입</text>
+        <line x1="400" y1="5" x2="304" y2="162" stroke="#e8920a" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arr-ora)" opacity="0.8"/>
+        <line x1="460" y1="20" x2="340" y2="190" stroke="#e8920a" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#arr-ora)" opacity="0.65"/>
+        <line x1="478" y1="235" x2="390" y2="258" stroke="#e8920a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-ora)" opacity="0.65"/>
+        <circle class="pulse-r" cx="295" cy="170" r="8" fill="rgba(231,76,60,0.6)" filter="url(#glow-r)"/>
+        <text x="295" y="174" text-anchor="middle" font-size="8">💥</text>
+        <circle cx="215" cy="175" r="5.5" fill="rgba(231,76,60,0.55)" filter="url(#glow-r)"/>
+        <circle cx="346" cy="262" r="5" fill="rgba(232,146,10,0.55)" filter="url(#glow-r)"/>
+        <circle cx="58" cy="58" r="4.5" fill="rgba(232,146,10,0.5)" filter="url(#glow-r)"/>
+        <circle cx="430" cy="42" r="4" fill="rgba(232,146,10,0.45)" filter="url(#glow-r)"/>
+        <rect x="4" y="118" width="86" height="28" rx="3" fill="rgba(231,76,60,0.1)" stroke="rgba(231,76,60,0.28)" stroke-width="0.8"/>
+        <text x="47" y="130" text-anchor="middle" fill="#e74c3c" font-size="7.5" font-family="Noto Sans KR">제1파 (07:48)</text>
+        <text x="47" y="140" text-anchor="middle" fill="rgba(255,255,255,0.42)" font-size="7" font-family="Noto Sans KR">수평·어뢰폭격 183기</text>
+        <rect x="385" y="4" width="88" height="22" rx="3" fill="rgba(231,76,60,0.08)" stroke="rgba(231,76,60,0.22)" stroke-width="0.8"/>
+        <text x="429" y="13" text-anchor="middle" fill="#e8920a" font-size="7.5" font-family="Oswald">KIDO BUTAI</text>
+        <text x="429" y="22" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7" font-family="Noto Sans KR">기동함대 북방 대기</text>
+        <path d="M148,235 Q168,252 192,260 Q212,266 235,264 Q258,261 272,248 Q284,238 288,228"
+              fill="none" stroke="rgba(42,180,216,0.28)" stroke-width="1.5"/>
+        <text x="218" y="282" text-anchor="middle" fill="rgba(42,180,216,0.5)" font-size="8.5" font-family="Oswald" letter-spacing="2">PEARL HARBOR</text>
+        <g transform="translate(26,255)">
+          <circle r="15" fill="rgba(10,22,40,0.85)" stroke="rgba(42,180,216,0.3)" stroke-width="1"/>
+          <text x="0" y="-5" text-anchor="middle" fill="rgba(231,76,60,0.9)" font-size="8.5" font-weight="bold">N</text>
+          <text x="0" y="12" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7.5">S</text>
+          <text x="-10" y="3.5" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7.5">W</text>
+          <text x="10" y="3.5" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7.5">E</text>
+          <line x1="0" y1="-11" x2="0" y2="9" stroke="rgba(231,76,60,0.7)" stroke-width="1.2"/>
+          <line x1="-9" y1="0" x2="9" y2="0" stroke="rgba(255,255,255,0.3)" stroke-width="0.9"/>
+        </g>
+      </svg>
+      <div class="map-legend">
+        <div class="leg-row"><div class="leg-line" style="border-top:2px dashed #e74c3c;background:none"></div>제1파 수평·어뢰 폭격</div>
+        <div class="leg-row"><div class="leg-line" style="border-top:2px dashed #e8920a;background:none"></div>제2파 급강하 폭격</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#e74c3c"></div>피격 전함</div>
+        <div class="leg-row"><div class="leg-dot" style="background:rgba(40,90,55,0.85)"></div>비행장·군사시설</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(13,43,78,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:11px 14px">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--aqua);opacity:0.7;margin-bottom:9px;text-transform:uppercase">🔴 진주만 피해 현황</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.55);width:70px;flex-shrink:0">전함 피해</span>
+          <div style="flex:1;height:7px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden"><div style="width:80%;height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:3px"></div></div>
+          <span style="font-size:10.5px;color:var(--gold);width:28px;text-align:right">8척</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.55);width:70px;flex-shrink:0">항공기 손실</span>
+          <div style="flex:1;height:7px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden"><div style="width:75%;height:100%;background:linear-gradient(90deg,#e8920a,#d35400);border-radius:3px"></div></div>
+          <span style="font-size:10.5px;color:var(--gold);width:28px;text-align:right">188기</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.55);width:70px;flex-shrink:0">인명 피해</span>
+          <div style="flex:1;height:7px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden"><div style="width:60%;height:100%;background:linear-gradient(90deg,#e74c3c,#8e44ad);border-radius:3px"></div></div>
+          <span style="font-size:9.5px;color:var(--gold);width:38px;text-align:right">2,403명</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.55);width:70px;flex-shrink:0">일본 손실</span>
+          <div style="flex:1;height:7px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden"><div style="width:8%;height:100%;background:linear-gradient(90deg,#2ab4d8,#1a6fa8);border-radius:3px"></div></div>
+          <span style="font-size:10.5px;color:var(--gold);width:28px;text-align:right">29기</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 5: 영상 2 — 진주만          -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="video-slide-wrap">
+      <div class="video-label">▶ 진주만 관련 영상</div>
+      <div class="video-frame-wrap">
+        <iframe src="https://drive.google.com/file/d/17E9hlzCXqzD0HTNmveGbhYts8M2ynYhi/preview"
+                allow="autoplay" allowfullscreen></iframe>
+      </div>
+      <div class="video-nav-hint">← → 키 또는 화살표 버튼으로 이동</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 6: 둘리틀 공습 (Part2 s2)   -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s6">
+  <div class="s4-left">
+    <div class="section-badge"><span class="section-num">03</span> 발표자: 신재현</div>
+    <div class="section-title">둘리틀 공습 —<br><span>미국의 반격과 일본의 충격</span></div>
+    <div class="plot-card">
+      진주만 이후 5개월, 루스벨트는 <strong>심리적 반격</strong>을 명령. 지미 둘리틀 중령의 B-25 폭격기 <strong>16기</strong>가 1942.4.18 항공모함에서 이륙 — 일본 본토를 처음으로 폭격. 군사적 피해보다 훨씬 큰 <strong>심리적 파장</strong>이 일본을 뒤흔든다.
+    </div>
+
+    <div class="map-box" style="flex:1">
+      <div class="map-title">🗺 둘리틀 공습 항로도 — 태평양 1942.4.18</div>
+      <svg viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+        <defs>
+          <radialGradient id="sea-dd" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#081828"/>
+            <stop offset="100%" stop-color="#030c18"/>
+          </radialGradient>
+          <marker id="arr-b2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#2ab4d8"/>
+          </marker>
+          <marker id="arr-g2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0,7 2.5,0 5" fill="#f0c040"/>
+          </marker>
+          <filter id="glow-g"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="520" height="220" fill="url(#sea-dd)"/>
+        <line x1="0" y1="55" x2="520" y2="55" stroke="rgba(42,180,216,0.055)" stroke-width="1"/>
+        <line x1="0" y1="110" x2="520" y2="110" stroke="rgba(42,180,216,0.055)" stroke-width="1"/>
+        <line x1="0" y1="165" x2="520" y2="165" stroke="rgba(42,180,216,0.055)" stroke-width="1"/>
+        <line x1="130" y1="0" x2="130" y2="220" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+        <line x1="260" y1="0" x2="260" y2="220" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+        <line x1="390" y1="0" x2="390" y2="220" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+        <text x="3" y="57" fill="rgba(42,180,216,0.3)" font-size="7">40°N</text>
+        <text x="3" y="112" fill="rgba(42,180,216,0.3)" font-size="7">30°N</text>
+        <text x="3" y="167" fill="rgba(42,180,216,0.3)" font-size="7">20°N</text>
+        <path d="M38,28 Q52,22 70,28 Q82,38 78,55 Q72,72 60,82 Q48,90 38,84 Q24,75 26,60 Q28,44 38,28Z"
+              fill="rgba(231,76,60,0.22)" stroke="rgba(231,76,60,0.45)" stroke-width="1.2"/>
+        <path d="M28,55 Q22,70 20,88 Q18,102 24,110 Q30,118 40,114 Q50,108 52,95 Q54,80 48,68Z"
+              fill="rgba(231,76,60,0.18)" stroke="rgba(231,76,60,0.35)" stroke-width="1"/>
+        <path d="M48,10 Q62,4 78,8 Q90,16 86,28 Q78,34 65,30 Q52,26 48,18Z"
+              fill="rgba(231,76,60,0.15)" stroke="rgba(231,76,60,0.3)" stroke-width="0.8"/>
+        <circle cx="62" cy="60" r="5.5" fill="rgba(231,76,60,0.5)" stroke="#e74c3c" stroke-width="1.2"/>
+        <text x="76" y="57" fill="#e74c3c" font-size="8.5" font-family="Oswald">TOKYO</text>
+        <text x="76" y="67" fill="rgba(255,255,255,0.38)" font-size="7.5" font-family="Noto Sans KR">도쿄·나고야·요코하마</text>
+        <path d="M0,118 Q28,100 68,105 Q98,108 115,128 Q122,148 112,168 Q96,188 68,193 Q38,198 15,188 Q0,178 0,158Z"
+              fill="rgba(80,140,80,0.22)" stroke="rgba(80,140,80,0.32)" stroke-width="1"/>
+        <circle cx="70" cy="148" r="5.5" fill="rgba(240,192,64,0.65)" stroke="#f0c040" stroke-width="1.2"/>
+        <text x="83" y="146" fill="#f0c040" font-size="8.5" font-family="Oswald">ZHEJIANG</text>
+        <text x="83" y="157" fill="rgba(255,255,255,0.4)" font-size="7.5" font-family="Noto Sans KR">저장성 비상 착륙</text>
+        <path d="M200,8 Q240,3 285,7 Q315,10 340,6 Q360,3 380,8 Q392,16 380,22 Q355,26 320,20 Q288,14 258,17 Q228,20 208,20 Q196,18 200,8Z"
+              fill="rgba(80,140,80,0.14)" stroke="rgba(80,140,80,0.22)" stroke-width="0.8"/>
+        <ellipse cx="432" cy="128" rx="24" ry="9" fill="rgba(42,100,180,0.32)" stroke="rgba(42,180,216,0.45)" stroke-width="1.2"/>
+        <text x="432" y="125" text-anchor="middle" fill="#2ab4d8" font-size="8.5" font-family="Oswald">HAWAII</text>
+        <text x="432" y="146" text-anchor="middle" fill="rgba(42,180,216,0.5)" font-size="7.5" font-family="Noto Sans KR">진주만</text>
+        <circle cx="308" cy="92" r="4.5" fill="rgba(42,180,216,0.32)" stroke="rgba(42,180,216,0.55)" stroke-width="1"/>
+        <text x="308" y="84" text-anchor="middle" fill="rgba(42,180,216,0.65)" font-size="7.5" font-family="Oswald">MIDWAY</text>
+        <circle cx="318" cy="112" r="8" fill="rgba(42,180,216,0.22)" stroke="#2ab4d8" stroke-width="1.5"/>
+        <text x="318" y="110" text-anchor="middle" fill="#2ab4d8" font-size="7" font-family="Oswald">CV</text>
+        <text x="343" y="110" fill="rgba(42,180,216,0.85)" font-size="8" font-family="Oswald">HORNET</text>
+        <text x="343" y="120" fill="rgba(255,255,255,0.35)" font-size="7.5" font-family="Noto Sans KR">출격 지점</text>
+        <path d="M314,110 Q248,96 185,80 Q138,68 90,62"
+              fill="none" stroke="#2ab4d8" stroke-width="2.4" stroke-dasharray="8,4" marker-end="url(#arr-b2)" opacity="0.9"/>
+        <g transform="translate(198,78) rotate(-18)">
+          <rect x="-10" y="-3" width="20" height="5" rx="2" fill="#2ab4d8" opacity="0.92"/>
+          <rect x="-4" y="-8" width="8" height="4.5" rx="1" fill="#2ab4d8" opacity="0.82"/>
+          <rect x="-14" y="-1.5" width="6" height="2.5" rx="1" fill="#2ab4d8" opacity="0.7"/>
+          <rect x="8" y="-1.5" width="5.5" height="2.5" rx="1" fill="#2ab4d8" opacity="0.7"/>
+        </g>
+        <path d="M56,60 Q60,90 65,120 Q67,135 70,146"
+              fill="none" stroke="#f0c040" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-g2)" opacity="0.88"/>
+        <circle cx="62" cy="60" r="14" fill="rgba(231,76,60,0.07)" stroke="rgba(231,76,60,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="62" y="44" text-anchor="middle" font-size="13" filter="url(#glow-g)">💥</text>
+        <text x="208" y="93" text-anchor="middle" fill="rgba(42,180,216,0.5)" font-size="7.5" font-family="Noto Sans KR" transform="rotate(-14,208,93)">약 1,100km</text>
+        <rect x="155" y="156" width="95" height="36" rx="4" fill="rgba(5,14,28,0.88)" stroke="rgba(42,180,216,0.22)" stroke-width="0.8"/>
+        <text x="203" y="168" text-anchor="middle" fill="#2ab4d8" font-size="8.5" font-family="Oswald">B-25 × 16기 출격</text>
+        <text x="203" y="179" text-anchor="middle" fill="rgba(255,255,255,0.48)" font-size="7.5" font-family="Noto Sans KR">도쿄 등 6개 도시 폭격</text>
+        <text x="203" y="188" text-anchor="middle" fill="#f0c040" font-size="7.5" font-family="Noto Sans KR">→ 저장성 비상 착륙</text>
+        <rect x="390" y="190" width="122" height="24" rx="4" fill="rgba(231,76,60,0.1)" stroke="rgba(231,76,60,0.25)" stroke-width="0.8"/>
+        <text x="451" y="201" text-anchor="middle" fill="#e74c3c" font-size="8.5" font-family="Oswald">1942.4.18 감행</text>
+        <text x="451" y="211" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7" font-family="Noto Sans KR">둘리틀 공습</text>
+        <g transform="translate(490,18)">
+          <circle r="14" fill="rgba(10,22,40,0.88)" stroke="rgba(42,180,216,0.3)" stroke-width="1"/>
+          <text x="0" y="-5" text-anchor="middle" fill="rgba(231,76,60,0.9)" font-size="8" font-weight="bold">N</text>
+          <text x="0" y="11" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7">S</text>
+          <text x="-9" y="3" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7">W</text>
+          <text x="9" y="3" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7">E</text>
+          <line x1="0" y1="-10" x2="0" y2="8" stroke="rgba(231,76,60,0.7)" stroke-width="1"/>
+          <line x1="-8" y1="0" x2="8" y2="0" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+        </g>
+      </svg>
+      <div class="map-legend">
+        <div class="leg-row"><div class="leg-line" style="border-top:2px dashed #2ab4d8;background:none"></div>B-25 출격 항로</div>
+        <div class="leg-row"><div class="leg-line" style="border-top:2px dashed #f0c040;background:none"></div>중국 탈출 경로</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#e74c3c"></div>폭격 목표 (도쿄 등 6개 도시)</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#f0c040"></div>착륙지 (저장성)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s4-right">
+    <div class="section-title" style="font-size:16px">일본 사회에 끼친 <span>영향</span></div>
+    <div class="effect-list">
+      <div class="eff-item mil">
+        <div class="ei-tag">군사적</div>
+        <div class="ei-text"><strong>미드웨이 작전 가속화</strong> — 본토 방어 위기감으로 미 항모 격멸을 서두른다. 전략적 패착의 원인.</div>
+      </div>
+      <div class="eff-item psy">
+        <div class="ei-tag">심리적</div>
+        <div class="ei-text"><strong>천황 불가침 신화 붕괴</strong> — "본토는 안전하다"는 믿음이 무너진다. 도쿄 상공의 미군기가 주는 충격.</div>
+      </div>
+      <div class="eff-item soc">
+        <div class="ei-tag">사회적</div>
+        <div class="ei-text"><strong>반미 감정 극단화</strong> — 전쟁 여론 격화. 극단적 민족주의와 포로 학대 등 전쟁범죄와 연결.</div>
+      </div>
+      <div class="eff-item mil" style="border-color:#f0c040">
+        <div class="ei-tag" style="background:rgba(240,192,64,0.15);color:#f0c040">전략적</div>
+        <div class="ei-text"><strong>과도한 전선 확장</strong> — 본토 방어 집착이 전력 분산 → 미드웨이 항모 4척 상실로 이어짐.</div>
+      </div>
+    </div>
+    <div style="padding:12px 14px;border-radius:8px;background:rgba(240,192,64,0.07);border:1px solid rgba(240,192,64,0.2)">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:5px">💡 역사적 아이러니</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.65">군사적 피해는 미미했지만, 둘리틀 공습이 일본을 조급하게 만들었고, 그 조급함이 미드웨이 패배로 이어진다.</div>
+    </div>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 7: 영상 3 — 둘리틀 공습     -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s7">
+    <div class="video-slide-wrap">
+      <div class="video-label">▶ 둘리틀 공습 관련 영상</div>
+      <div class="video-frame-wrap">
+        <iframe src="https://drive.google.com/file/d/1YB3eDlRtq6BxGbPY0QM1MiDDKcKG0rzU/preview"
+                allow="autoplay" allowfullscreen></iframe>
+      </div>
+      <div class="video-nav-hint">← → 키 또는 화살표 버튼으로 이동</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 8: 해전 양상 (Part2 s3)     -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s8">
+  <div class="section-badge" style="margin-bottom:6px"><span class="section-num">04</span> 발표자: 김민희</div>
+  <div class="section-title" style="margin-bottom:10px">미드웨이 해전 — <span>전투 배경과 전황</span></div>
+
+  <div class="battle-body">
+    <div class="battle-left">
+      <div class="map-box" style="flex:1">
+        <div class="map-title">🗺 미드웨이 해전 전황도 — 1942.6.4 함대 배치 및 공격 벡터</div>
+        <svg viewBox="0 0 500 278" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+          <defs>
+            <radialGradient id="sea-mw" cx="50%" cy="50%" r="55%">
+              <stop offset="0%" stop-color="#081828"/>
+              <stop offset="100%" stop-color="#030d18"/>
+            </radialGradient>
+            <marker id="marr-r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#e74c3c"/>
+            </marker>
+            <marker id="marr-b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#2ab4d8"/>
+            </marker>
+            <marker id="marr-g" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+              <polygon points="0 0,7 2.5,0 5" fill="#f0c040"/>
+            </marker>
+            <filter id="glow-b2"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow-r2"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <rect width="500" height="278" fill="url(#sea-mw)"/>
+          <line x1="0" y1="70" x2="500" y2="70" stroke="rgba(42,180,216,0.05)" stroke-width="1"/>
+          <line x1="0" y1="139" x2="500" y2="139" stroke="rgba(42,180,216,0.05)" stroke-width="1"/>
+          <line x1="0" y1="208" x2="500" y2="208" stroke="rgba(42,180,216,0.05)" stroke-width="1"/>
+          <line x1="100" y1="0" x2="100" y2="278" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+          <line x1="200" y1="0" x2="200" y2="278" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+          <line x1="300" y1="0" x2="300" y2="278" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+          <line x1="400" y1="0" x2="400" y2="278" stroke="rgba(42,180,216,0.04)" stroke-width="1"/>
+          <ellipse cx="242" cy="235" rx="22" ry="11" fill="rgba(40,90,55,0.65)" stroke="rgba(80,160,100,0.55)" stroke-width="1.3"/>
+          <text x="242" y="233" text-anchor="middle" fill="rgba(150,220,150,0.88)" font-size="8.5" font-family="Oswald">MIDWAY</text>
+          <text x="242" y="255" text-anchor="middle" fill="rgba(150,220,150,0.5)" font-size="7.5" font-family="Noto Sans KR">미드웨이 섬</text>
+          <circle cx="242" cy="235" r="38" fill="none" stroke="rgba(42,180,216,0.18)" stroke-width="1" stroke-dasharray="4,3"/>
+          <rect x="376" y="90" width="90" height="42" rx="5" fill="rgba(26,111,168,0.22)" stroke="rgba(42,180,216,0.48)" stroke-width="1.3"/>
+          <text x="421" y="106" text-anchor="middle" fill="#2ab4d8" font-size="9" font-family="Oswald">🇺🇸 TF-17</text>
+          <text x="421" y="118" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="8" font-family="Oswald">YORKTOWN</text>
+          <text x="421" y="128" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7" font-family="Noto Sans KR">요크타운</text>
+          <rect x="372" y="142" width="108" height="48" rx="5" fill="rgba(26,111,168,0.22)" stroke="rgba(42,180,216,0.48)" stroke-width="1.3"/>
+          <text x="426" y="157" text-anchor="middle" fill="#2ab4d8" font-size="9" font-family="Oswald">🇺🇸 TF-16</text>
+          <text x="426" y="170" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="8" font-family="Oswald">ENTERPRISE</text>
+          <text x="426" y="181" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7.5" font-family="Oswald">+ HORNET</text>
+          <circle cx="400" cy="126" r="5.5" fill="rgba(42,180,216,0.42)" stroke="#2ab4d8" stroke-width="1.2" filter="url(#glow-b2)"/>
+          <text x="366" y="128" text-anchor="end" fill="rgba(42,180,216,0.58)" font-size="7.5" font-family="Noto Sans KR">매복 위치</text>
+          <rect x="18" y="40" width="108" height="64" rx="5" fill="rgba(192,57,43,0.2)" stroke="rgba(231,76,60,0.48)" stroke-width="1.3"/>
+          <text x="72" y="58" text-anchor="middle" fill="#e74c3c" font-size="9" font-family="Oswald">🇯🇵 기도부타이</text>
+          <text x="72" y="70" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7.5" font-family="Oswald">KIDO BUTAI</text>
+          <text x="72" y="82" text-anchor="middle" fill="rgba(231,76,60,0.8)" font-size="7" font-family="Noto Sans KR">아카기·가가·소류·히류</text>
+          <text x="72" y="93" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7" font-family="Noto Sans KR">항모 4척 + 호위함</text>
+          <rect x="5" y="155" width="98" height="36" rx="4" fill="rgba(192,57,43,0.1)" stroke="rgba(231,76,60,0.22)" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="54" y="170" text-anchor="middle" fill="rgba(231,76,60,0.6)" font-size="8" font-family="Oswald">야마모토 주력</text>
+          <text x="54" y="182" text-anchor="middle" fill="rgba(255,255,255,0.32)" font-size="7" font-family="Noto Sans KR">전함 야마토 외 후방 대기</text>
+          <path d="M126,68 Q175,120 218,195 Q228,217 238,230"
+                fill="none" stroke="#e74c3c" stroke-width="2" stroke-dasharray="7,3" marker-end="url(#marr-r)" opacity="0.72"/>
+          <text x="168" y="140" text-anchor="middle" fill="rgba(231,76,60,0.58)" font-size="7.5" font-family="Noto Sans KR" transform="rotate(58,168,140)">미드웨이 공습</text>
+          <path d="M374,116 Q308,98 222,84 Q172,76 135,70"
+                fill="none" stroke="#f0c040" stroke-width="2.4" marker-end="url(#marr-g)" opacity="0.92"/>
+          <g transform="translate(275,93) rotate(12)">
+            <rect x="-9" y="-3" width="18" height="4.5" rx="2" fill="#f0c040" opacity="0.9"/>
+            <rect x="-3" y="-7" width="6" height="3.5" rx="1" fill="#f0c040" opacity="0.8"/>
+          </g>
+          <rect x="218" y="55" width="82" height="20" rx="3" fill="rgba(240,192,64,0.12)" stroke="rgba(240,192,64,0.38)" stroke-width="1"/>
+          <text x="259" y="65" text-anchor="middle" fill="#f0c040" font-size="8" font-family="Noto Sans KR">⚡ 결정적 5분</text>
+          <text x="259" y="72" text-anchor="middle" fill="rgba(255,255,255,0.45)" font-size="7" font-family="Noto Sans KR">급강하폭격 성공</text>
+          <path d="M105,82 Q200,96 342,110"
+                fill="none" stroke="rgba(231,76,60,0.5)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#marr-r)" opacity="0.58"/>
+          <text x="218" y="100" text-anchor="middle" fill="rgba(231,76,60,0.48)" font-size="7" font-family="Noto Sans KR">히류 반격</text>
+          <path d="M372,116 Q295,98 164,76"
+                fill="none" stroke="rgba(42,180,216,0.55)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#marr-b)" opacity="0.65"/>
+          <circle cx="68" cy="46" r="9.5" fill="rgba(231,76,60,0.14)" stroke="#e74c3c" stroke-width="1.3" filter="url(#glow-r2)"/>
+          <text x="68" y="50" text-anchor="middle" fill="#e74c3c" font-size="11" font-weight="bold">✕</text>
+          <text x="68" y="36" text-anchor="middle" fill="rgba(231,76,60,0.65)" font-size="6.5" font-family="Oswald">AKAGI</text>
+          <circle cx="44" cy="62" r="8.5" fill="rgba(231,76,60,0.12)" stroke="#e74c3c" stroke-width="1.1" filter="url(#glow-r2)"/>
+          <text x="44" y="66" text-anchor="middle" fill="#e74c3c" font-size="10" font-weight="bold">✕</text>
+          <text x="44" y="52" text-anchor="middle" fill="rgba(231,76,60,0.62)" font-size="6.5" font-family="Oswald">KAGA</text>
+          <circle cx="95" cy="62" r="8" fill="rgba(231,76,60,0.12)" stroke="#e74c3c" stroke-width="1.1" filter="url(#glow-r2)"/>
+          <text x="95" y="66" text-anchor="middle" fill="#e74c3c" font-size="10" font-weight="bold">✕</text>
+          <text x="95" y="52" text-anchor="middle" fill="rgba(231,76,60,0.6)" font-size="6.5" font-family="Oswald">SORYU</text>
+          <circle cx="116" cy="47" r="7.5" fill="rgba(231,76,60,0.1)" stroke="rgba(231,76,60,0.48)" stroke-width="1"/>
+          <text x="116" y="51" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">✕</text>
+          <text x="116" y="37" text-anchor="middle" fill="rgba(231,76,60,0.55)" font-size="6.5" font-family="Oswald">HIRYU</text>
+          <circle class="pulse-b" cx="408" cy="110" r="7" fill="rgba(42,180,216,0.3)" stroke="#2ab4d8" stroke-width="1.3" filter="url(#glow-b2)"/>
+          <text x="408" y="114" text-anchor="middle" fill="#2ab4d8" font-size="9" font-weight="bold">△</text>
+          <text x="408" y="82" text-anchor="middle" fill="rgba(42,180,216,0.6)" font-size="7" font-family="Noto Sans KR">요크타운 피격·침몰</text>
+          <g transform="translate(468,22)">
+            <circle r="15" fill="rgba(10,22,40,0.88)" stroke="rgba(42,180,216,0.3)" stroke-width="1"/>
+            <text x="0" y="-5" text-anchor="middle" fill="rgba(231,76,60,0.9)" font-size="8.5" font-weight="bold">N</text>
+            <text x="0" y="11" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7.5">S</text>
+            <text x="-10" y="3.5" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7.5">W</text>
+            <text x="10" y="3.5" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="7.5">E</text>
+            <line x1="0" y1="-11" x2="0" y2="9" stroke="rgba(231,76,60,0.7)" stroke-width="1.2"/>
+            <line x1="-9" y1="0" x2="9" y2="0" stroke="rgba(255,255,255,0.28)" stroke-width="0.9"/>
+          </g>
+          <line x1="18" y1="263" x2="118" y2="263" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+          <line x1="18" y1="259" x2="18" y2="267" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+          <line x1="118" y1="259" x2="118" y2="267" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+          <text x="68" y="273" text-anchor="middle" fill="rgba(255,255,255,0.32)" font-size="7">약 200km</text>
+        </svg>
+        <div class="map-legend">
+          <div class="leg-row"><div class="leg-line" style="border-top:2px dashed #e74c3c;background:none"></div>일본군 공격 방향</div>
+          <div class="leg-row"><div class="leg-line" style="background:#f0c040;height:2px"></div>미군 급강하폭격</div>
+          <div class="leg-row"><span style="color:#e74c3c;font-size:9px;margin-right:2px;font-weight:bold">✕</span>일본 항모 침몰 (4척)</div>
+          <div class="leg-row"><div class="leg-dot" style="background:#2ab4d8"></div>미군 함대 위치</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(240,192,64,0.07);border:1px solid rgba(240,192,64,0.25);border-radius:8px;padding:10px 13px;display:flex;flex-direction:column;gap:5px">
+        <div style="font-size:9.5px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:1px">🔐 승리의 전제 조건 — 암호 해독</div>
+        <div style="display:flex;gap:14px;align-items:center">
+          <div style="flex:1;font-size:10.5px;color:rgba(255,255,255,0.65);line-height:1.6">
+            미 해군 정보팀, 일본 해군 암호 <strong style="color:var(--white)">JN-25</strong> 해독 성공.
+            일본의 공격 목표가 <strong style="color:var(--gold)">AF(미드웨이)</strong>임을 사전 파악 →
+            니미츠 제독, 함대를 <strong style="color:var(--aqua)">정확한 위치에 선배치</strong>하여 기습 역전.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+            <div style="padding:4px 9px;border-radius:5px;background:rgba(192,57,43,0.18);border:1px solid rgba(192,57,43,0.3);font-size:9px;color:rgba(231,76,60,0.9);text-align:center">일본 — 기습 의도</div>
+            <div style="padding:4px 9px;border-radius:5px;background:rgba(42,180,216,0.15);border:1px solid rgba(42,180,216,0.3);font-size:9px;color:var(--aqua);text-align:center">미국 — 이미 알고 있음</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="battle-right">
+      <div class="force-pair">
+        <div class="force-card us">
+          <div class="fc-flag">🇺🇸</div>
+          <div class="fc-name">미 해군</div>
+          <div class="fc-stat"><span class="fs-label">항공모함</span><span class="fs-val">3척</span></div>
+          <div class="fc-stat"><span class="fs-label">항공기</span><span class="fs-val">233기</span></div>
+          <div class="fc-stat"><span class="fs-label">전사자</span><span class="fs-val">307명</span></div>
+        </div>
+        <div class="force-card jp">
+          <div class="fc-flag">🇯🇵</div>
+          <div class="fc-name">일본 해군</div>
+          <div class="fc-stat"><span class="fs-label">항공모함</span><span class="fs-val">4척</span></div>
+          <div class="fc-stat"><span class="fs-label">항공기</span><span class="fs-val">248기</span></div>
+          <div class="fc-stat"><span class="fs-label">전사자</span><span class="fs-val">3,057명</span></div>
+        </div>
+      </div>
+
+      <div style="background:rgba(13,43,78,0.42);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+        <div style="font-size:9.5px;letter-spacing:2px;color:var(--aqua);opacity:0.7;text-transform:uppercase;margin-bottom:1px">⏱ 전투 단계</div>
+        <div style="display:flex;gap:9px;align-items:flex-start">
+          <div style="font-size:9.5px;color:var(--gold);font-family:'Oswald',sans-serif;width:56px;flex-shrink:0">6.4 새벽</div>
+          <div style="font-size:10.5px;color:rgba(255,255,255,0.62);line-height:1.5">일본 함재기, 미드웨이 섬 공습</div>
+        </div>
+        <div style="display:flex;gap:9px;align-items:flex-start">
+          <div style="font-size:9.5px;color:#e8920a;font-family:'Oswald',sans-serif;width:56px;flex-shrink:0">6.4 오전</div>
+          <div style="font-size:10.5px;color:rgba(255,255,255,0.62);line-height:1.5">미 뇌격기 공격 — 대부분 격추, 일본 재무장 중</div>
+        </div>
+        <div style="display:flex;gap:9px;align-items:flex-start;background:rgba(240,192,64,0.09);border-radius:4px;padding:5px 7px">
+          <div style="font-size:9.5px;color:#f0c040;font-family:'Oswald',sans-serif;width:56px;flex-shrink:0">⚡ 10:22</div>
+          <div style="font-size:10.5px;color:rgba(255,255,255,0.82);line-height:1.5"><strong style="color:#f0c040">결정적 5분</strong> — 아카기·가가·소류 동시 타격</div>
+        </div>
+        <div style="display:flex;gap:9px;align-items:flex-start">
+          <div style="font-size:9.5px;color:#e74c3c;font-family:'Oswald',sans-serif;width:56px;flex-shrink:0">6.4 오후</div>
+          <div style="font-size:10.5px;color:rgba(255,255,255,0.62);line-height:1.5">히류 반격 → 요크타운 피격. 히류도 격침</div>
+        </div>
+        <div style="display:flex;gap:9px;align-items:flex-start">
+          <div style="font-size:9.5px;color:#2ab4d8;font-family:'Oswald',sans-serif;width:56px;flex-shrink:0">6.7 종전</div>
+          <div style="font-size:10.5px;color:rgba(255,255,255,0.62);line-height:1.5">미국 전략적 승리 — 태평양 주도권 확보</div>
+        </div>
+      </div>
+
+      <div class="result-cards">
+        <div class="rc loss-jp">
+          <div class="rc-label">일본 항모</div>
+          <div class="rc-val">4척</div>
+          <div class="rc-sub">전멸</div>
+        </div>
+        <div class="rc loss-us">
+          <div class="rc-label">미국 항모</div>
+          <div class="rc-val">1척</div>
+          <div class="rc-sub">요크타운</div>
+        </div>
+        <div class="rc loss-jp">
+          <div class="rc-label">숙련 조종사</div>
+          <div class="rc-val">110+</div>
+          <div class="rc-sub">회복 불가</div>
+        </div>
+        <div class="rc outcome">
+          <div class="rc-label">전쟁사 평가</div>
+          <div class="rc-val">태평양<br>전환점</div>
+          <div class="rc-sub">공세 전환</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 9: 영상 4 — 해전 양상       -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s9">
+    <div class="video-slide-wrap">
+      <div class="video-label">▶ 미드웨이 해전 관련 영상</div>
+      <div class="video-frame-wrap">
+        <iframe src="https://drive.google.com/file/d/1RgN4c3GTL5lc-gIWIEi_BAL3paK9pqBH/preview"
+                allow="autoplay" allowfullscreen></iframe>
+      </div>
+      <div class="video-nav-hint">← → 키 또는 화살표 버튼으로 이동</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 10: 전쟁사적 의미 (Part2 s4) -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s10" style="align-items:flex-start;padding:22px 40px">
+  <div style="width:100%;height:100%;display:flex;flex-direction:column;gap:14px">
+
+    <div style="display:flex;align-items:center;gap:16px;flex-shrink:0">
+      <div class="section-badge"><span class="section-num">05</span> 미드웨이 해전의 역사적 의미</div>
+      <div class="section-title">태평양 전쟁의 <span>분수령</span> — 2차 세계대전 내 위치</div>
+    </div>
+
+    <div style="display:flex;gap:16px;flex:1;min-height:0">
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--aqua);text-transform:uppercase;border-bottom:1px solid rgba(42,180,216,0.25);padding-bottom:7px;font-weight:500">⚔ 군사적 의미</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(13,43,78,0.5);border-left:3px solid var(--aqua)">
+            <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:5px">주력 항공전력 궤멸</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">항공모함 4척(아카기·가가·소류·히류)과 숙련 함재기 조종사 110명 이상 상실 — 단기간 회복 불가능한 타격</div>
+          </div>
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(13,43,78,0.5);border-left:3px solid var(--aqua)">
+            <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:5px">해상·공중 주도권 이전</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">일본의 기동·공격 능력 급격히 약화. 미국이 태평양 해상 및 공중 우위 확보 시작</div>
+          </div>
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(13,43,78,0.5);border-left:3px solid rgba(42,180,216,0.5)">
+            <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:5px">현대 해전 양식 확립</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">전함이 아닌 <span style="color:var(--aqua)">항공모함·함재기</span> 중심의 현대 해전 패러다임이 공식화된 전투</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;border-bottom:1px solid rgba(240,192,64,0.25);padding-bottom:7px;font-weight:500">🧭 전략적 의미</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(13,43,78,0.5);border-left:3px solid var(--gold)">
+            <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:5px">공세 전환점</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">일본의 태평양 공세 종료 — 이후 방어 전략으로 전환. 미국은 연속적 섬 점령(도서 점프) 반격 개시</div>
+          </div>
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(13,43,78,0.5);border-left:3px solid var(--gold)">
+            <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:5px">정보·암호전의 중요성 입증</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">JN-25 암호 해독 성공이 전술적 우위 결정. <span style="color:var(--gold)">정보 우위</span>가 병력·화력 열세를 극복한 역사적 사례</div>
+          </div>
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(13,43,78,0.5);border-left:3px solid rgba(240,192,64,0.5)">
+            <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:5px">일본의 전략 목표 좌절</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">단기 공세 후 유리한 조건의 협상 강요 전략 — 미드웨이에서 영구 봉쇄됨</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;border-bottom:1px solid rgba(232,146,10,0.25);padding-bottom:7px;font-weight:500">🌐 2차 세계대전 내 위치</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(13,43,78,0.5);border-left:3px solid var(--amber)">
+            <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:5px">추축국 패배의 확정</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">태평양 전선에서 일본(추축국)의 패배 흐름이 굳어진 결정적 전환점. 이후 연합국 주도권 확고</div>
+          </div>
+          <div style="padding:12px 15px;border-radius:8px;background:rgba(232,146,10,0.08);border:1px solid rgba(232,146,10,0.22)">
+            <div style="font-size:11px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">같은 해 — 추축국 패퇴의 흐름</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;font-size:11.5px">
+                <span style="color:rgba(255,255,255,0.5)">유럽 전선</span>
+                <span style="color:rgba(255,255,255,0.75)">스탈린그라드 (1942.8~)</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11.5px">
+                <span style="color:rgba(255,255,255,0.5)">북아프리카</span>
+                <span style="color:rgba(255,255,255,0.75)">엘 알라메인 (1942.10~)</span>
+              </div>
+              <div style="height:1px;background:rgba(255,255,255,0.08);margin:4px 0"></div>
+              <div style="font-size:11.5px;color:var(--gold)">→ 1942년, 전선 전반에서 전환 시작</div>
+            </div>
+          </div>
+          <div style="padding:12px 15px;border-radius:8px;background:linear-gradient(135deg,rgba(240,192,64,0.12),rgba(42,180,216,0.08));border:1px solid rgba(240,192,64,0.3)">
+            <div style="font-size:11px;letter-spacing:1.5px;color:var(--gold);margin-bottom:6px">📌 핵심 요약</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.78);line-height:1.75">
+              미드웨이는 <strong style="color:var(--white)">4일간의 전투</strong>로 태평양 전쟁의 흐름을 바꿨다. 일본의 공세는 끝났고 미국의 반격이 시작됐다. <strong style="color:var(--aqua)">항공모함과 정보력</strong>이 승패를 결정한다는 것을 역사는 이 해전으로 증명했다.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 11: 역사적 의미 (Part3 s1)  -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s11">
+    <div class="s6-left">
+      <div class="section-badge"><span class="section-num">05</span> 발표자: 이루다</div>
+      <div class="section-title">미드웨이의<br><span>역사적 의미</span></div>
+
+      <div class="meaning-cards">
+        <div class="mc">
+          <div class="mc-num">1</div>
+          <div class="mc-text"><strong>전세의 전환점</strong> — 일본 항공모함 전력을 결정적으로 약화시켜 미국이 태평양의 전략적 주도권을 확보. 이후 공세적 전략으로 전환하는 계기</div>
+        </div>
+        <div class="mc">
+          <div class="mc-num">2</div>
+          <div class="mc-text"><strong>정보·기술 결합 현대전</strong> — 암호 해독(조 록카드 팀)으로 일본 작전 계획 사전 파악. 레이다·항공모함 중심 새로운 군사 패러다임 제시</div>
+        </div>
+        <div class="mc">
+          <div class="mc-num">3</div>
+          <div class="mc-text"><strong>이데올로기적 정체성 강화</strong> — 자유민주주의 vs 전체주의 구도 확립. 전후 냉전 체제에서 미국 외교·군사 정책의 정당화 토대</div>
+        </div>
+        <div class="mc">
+          <div class="mc-num">4</div>
+          <div class="mc-text"><strong>제국주의 패권 경쟁의 맥락</strong> — '명백한 운명' 이념 하 태평양 영향력 경쟁. 단순 선악 구도가 아닌 두 제국 간 패권 충돌</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s6-right">
+      <div style="font-size:11px;letter-spacing:2px;color:var(--aqua);opacity:0.7;text-transform:uppercase;margin-bottom:10px">타 전쟁과의 비교</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag-common">공통</span>전환점</td>
+            <td>스탈린그라드·노르망디처럼 전쟁 주도권 이동의 계기</td>
+          </tr>
+          <tr>
+            <td><span class="tag-common">공통</span>총력전</td>
+            <td>정보·기술·산업 역량 총동원</td>
+          </tr>
+          <tr>
+            <td><span class="tag-common">공통</span>기술 혁신</td>
+            <td>레이다·항공모함·암호 해독이 승패 결정</td>
+          </tr>
+          <tr>
+            <td><span class="tag-diff">차이</span>항공모함전</td>
+            <td>전함 포격→항공기 원거리 공격으로 해전 양상 근본 변화</td>
+          </tr>
+          <tr>
+            <td><span class="tag-diff">차이</span>정보전 비중</td>
+            <td>암호 해독이 물리적 전력 이상의 결과 도출</td>
+          </tr>
+          <tr>
+            <td><span class="tag-diff">차이</span>이데올로기</td>
+            <td>자유주의 vs 전체주의의 가치 충돌로 해석</td>
+          </tr>
+          <tr>
+            <td><span class="tag-diff">차이</span>전력 열세 승리</td>
+            <td>정보력과 전략 판단으로 열세 극복 — 전쟁사 희귀 사례</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 12: 토론 (Part3 s2)         -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s12">
+    <div style="display:flex;align-items:center;gap:16px;width:100%">
+      <div class="section-badge"><span class="section-num">06</span> 토론</div>
+      <div class="debate-tabs">
+        <button class="dtab active" onclick="switchDebate(0)">6-1. 전선의 이중화</button>
+        <button class="dtab" onclick="switchDebate(1)">6-2. 암호 해독의 중요성</button>
+      </div>
+    </div>
+
+    <div class="debate-panel active" id="dp0">
+      <div style="flex:1.3">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--aqua);opacity:0.7;margin-bottom:12px;text-transform:uppercase">🗺 전선 분포도 — 추축국 vs 연합국</div>
+        <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;overflow:hidden">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#2ab4d8"/>
+            </marker>
+          </defs>
+          <rect width="480" height="240" fill="rgba(10,22,40,0.8)" rx="6"/>
+          <rect x="20" y="30" width="170" height="80" rx="6" fill="rgba(231,76,60,0.1)" stroke="rgba(231,76,60,0.3)" stroke-width="1" stroke-dasharray="4,2"/>
+          <text x="105" y="58" text-anchor="middle" fill="#e74c3c" font-size="10" font-family="Noto Sans KR">🔴 유럽·대서양 전선</text>
+          <text x="105" y="73" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="9" font-family="Noto Sans KR">나치 독일 vs 연합국</text>
+          <text x="105" y="87" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="8.5" font-family="Noto Sans KR">소련·영국·미국 협력</text>
+          <text x="105" y="100" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="8" font-family="Noto Sans KR">스탈린그라드 · 노르망디</text>
+          <rect x="290" y="30" width="170" height="80" rx="6" fill="rgba(232,146,10,0.1)" stroke="rgba(232,146,10,0.3)" stroke-width="1" stroke-dasharray="4,2"/>
+          <text x="375" y="58" text-anchor="middle" fill="#f0c040" font-size="10" font-family="Noto Sans KR">🟡 태평양 전선</text>
+          <text x="375" y="73" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="9" font-family="Noto Sans KR">일본 제국 vs 미국</text>
+          <text x="375" y="87" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="8.5" font-family="Noto Sans KR">진주만 · 미드웨이</text>
+          <text x="375" y="100" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="8" font-family="Noto Sans KR">과달카날 · 오키나와</text>
+          <text x="240" y="72" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-size="16" font-family="Oswald">+</text>
+          <text x="240" y="120" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="9" font-family="Noto Sans KR">자원·병력 분산 압박</text>
+          <line x1="180" y1="115" x2="100" y2="130" stroke="rgba(42,180,216,0.3)" stroke-width="1" marker-end="url(#arr)"/>
+          <line x1="300" y1="115" x2="380" y2="130" stroke="rgba(42,180,216,0.3)" stroke-width="1" marker-end="url(#arr)"/>
+          <rect x="80" y="140" width="130" height="55" rx="5" fill="rgba(42,180,216,0.1)" stroke="rgba(42,180,216,0.25)" stroke-width="1"/>
+          <text x="145" y="160" text-anchor="middle" fill="#2ab4d8" font-size="9" font-family="Noto Sans KR">🇺🇸 미국 전략</text>
+          <text x="145" y="174" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8" font-family="Noto Sans KR">유럽 우선 (Europe First)</text>
+          <text x="145" y="186" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7.5" font-family="Noto Sans KR">→ 태평양은 방어 위주</text>
+          <rect x="270" y="140" width="130" height="55" rx="5" fill="rgba(231,76,60,0.08)" stroke="rgba(231,76,60,0.2)" stroke-width="1"/>
+          <text x="335" y="160" text-anchor="middle" fill="#e74c3c" font-size="9" font-family="Noto Sans KR">🇯🇵 일본 딜레마</text>
+          <text x="335" y="174" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8" font-family="Noto Sans KR">태평양 전역 동시 방어</text>
+          <text x="335" y="186" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7.5" font-family="Noto Sans KR">→ 전력 분산·약화</text>
+          <rect x="150" y="210" width="180" height="24" rx="4" fill="rgba(240,192,64,0.12)" stroke="rgba(240,192,64,0.25)" stroke-width="1"/>
+          <text x="240" y="226" text-anchor="middle" fill="#f0c040" font-size="9" font-family="Noto Sans KR">이중 전선 = 일본의 전략적 함정</text>
+        </svg>
+      </div>
+
+      <div class="front-text">
+        <div style="font-size:13px;font-family:'Oswald',sans-serif;color:var(--white);letter-spacing:1px;margin-bottom:4px">토론 주제</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:16px">
+          독일과 일본이 동시에 전쟁을 수행한 것은 연합국에 어떤 전략적 이점을 주었나? 반대로 추축국 입장에서 이 선택은 필연적이었는가?
+        </div>
+        <div class="ft-card ger">
+          <div class="ftc-title">🇩🇪 독일의 딜레마</div>
+          <div class="ftc-body">동부전선(소련)·서부전선(영미) 동시 대응. 스탈린그라드 패배 이후 전선 붕괴 가속. 미국의 유럽 참전으로 결정적 압박 가중.</div>
+        </div>
+        <div class="ft-card jpn">
+          <div class="ftc-title">🇯🇵 일본의 딜레마</div>
+          <div class="ftc-body">광대한 태평양·동남아 전선을 동시 방어. 미드웨이 패배 후 항모 전력 붕괴. 보급선 차단으로 고립된 섬들 순차 함락.</div>
+        </div>
+        <div class="q-card" style="margin-top:4px">
+          <div class="qc-label">💬 토론 포인트</div>
+          <div class="qc-q">추축국의 이중 전선이 없었다면, 연합국은 전쟁에서 승리할 수 있었을까?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="debate-panel" id="dp1">
+      <div class="cipher-grid">
+        <div class="cipher-card enigma">
+          <div class="cc-icon">⚙️</div>
+          <div class="cc-name">ENIGMA</div>
+          <div class="cc-row"><span class="cr-k">시기</span><span class="cr-v">1939–1945</span></div>
+          <div class="cc-row"><span class="cr-k">해독 주체</span><span class="cr-v">앨런 튜링 / 블레츨리 파크</span></div>
+          <div class="cc-row"><span class="cr-k">해독 기관</span><span class="cr-v">영국 GCHQ 전신</span></div>
+          <div class="cc-row"><span class="cr-k">영향</span><span class="cr-v">대서양 전투 판도 전환</span></div>
+          <div class="cc-compare">에니그마 해독은 독일 U보트 작전을 무력화하고 노르망디 상륙 기만작전에도 활용. 컴퓨터 과학의 탄생에도 기여.</div>
+        </div>
+        <div class="cipher-card midway">
+          <div class="cc-icon">📡</div>
+          <div class="cc-name">JN-25</div>
+          <div class="cc-row"><span class="cr-k">시기</span><span class="cr-v">1942.5–6</span></div>
+          <div class="cc-row"><span class="cr-k">해독 주체</span><span class="cr-v">조 록카드 / 미 해군 Station HYPO</span></div>
+          <div class="cc-row"><span class="cr-k">핵심 성과</span><span class="cr-v">목표 "AF" = 미드웨이 확인</span></div>
+          <div class="cc-row"><span class="cr-k">영향</span><span class="cr-v">태평양 전쟁 판도 전환</span></div>
+          <div class="cc-compare">일본의 다음 공격 목표를 사전 파악, 미군이 매복 작전 전개. 수적 열세를 정보력으로 극복한 현대전의 상징.</div>
+        </div>
+      </div>
+
+      <div class="debate-aside">
+        <div style="font-size:12px;font-family:'Oswald',sans-serif;color:var(--white);letter-spacing:1px">공통점과 차이점</div>
+        <div style="background:rgba(13,43,78,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.65">
+          두 암호 해독 모두 전쟁의 판도를 바꿨지만, <strong style="color:#f0c040">에니그마</strong>는 장기·지속적 정보 우위를, <strong style="color:#2ab4d8">JN-25</strong>는 단 한 번의 결정적 순간에 집중된 효과를 냈다.
+        </div>
+        <div class="q-card">
+          <div class="qc-label">💬 토론 포인트</div>
+          <div class="qc-q">현대의 사이버전·AI 정보 분석은 2차 세계대전의 암호 해독과 어떤 점에서 닮아있나?</div>
+        </div>
+        <div class="q-card" style="border-color:rgba(42,180,216,0.2);background:rgba(42,180,216,0.05)">
+          <div class="qc-label" style="color:var(--aqua)">🔍 생각해볼 점</div>
+          <div class="qc-q">정보 우위가 물리적 전력 열세를 극복할 수 있다면, 현대전에서 '힘'의 정의는 어떻게 달라지는가?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SLIDE 13: 영상 5 — 암호해독       -->
+  <!-- ══════════════════════════════════ -->
+  <div class="slide" id="s13">
+    <div class="video-slide-wrap">
+      <div class="video-label">▶ 암호 해독 관련 영상</div>
+      <div class="video-frame-wrap">
+        <iframe src="https://drive.google.com/file/d/1ytmkJc4U_-CF4ElayJVdPi40H6B4VjWt/preview"
+                allow="autoplay" allowfullscreen></iframe>
+      </div>
+      <div class="video-nav-hint">← → 키 또는 화살표 버튼으로 이동</div>
+    </div>
+  </div>
+
+</div><!-- /slides-wrap -->
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <div class="progress-fill" id="progress"></div>
+</div>
+
+<script>
+  let cur = 0;
+  const total = 13;
+  const slides = document.querySelectorAll('.slide');
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('slideCounter');
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[cur].classList.remove('active');
+    slides[cur].classList.add('exit');
+    setTimeout(() => { slides[cur].classList.remove('exit'); }, 320);
+    cur = n;
+    slides[cur].classList.add('active');
+    navBtns.forEach((b, i) => b.classList.toggle('active', i === cur));
+    progress.style.width = ((cur + 1) / total * 100) + '%';
+    counter.textContent = (cur + 1) + ' / ' + total;
+  }
+
+  function nextSlide() { goTo(cur + 1); }
+  function prevSlide() { goTo(cur - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+  });
+
+  function switchDebate(i) {
+    document.querySelectorAll('.debate-panel').forEach((p, idx) => { p.classList.toggle('active', idx === i); });
+    document.querySelectorAll('.dtab').forEach((t, idx) => { t.classList.toggle('active', idx === i); });
+  }
+
+  // init
+  progress.style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>
